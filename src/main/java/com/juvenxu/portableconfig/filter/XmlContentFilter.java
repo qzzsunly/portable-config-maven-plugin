@@ -1,9 +1,11 @@
 package com.juvenxu.portableconfig.filter;
 
 import com.juvenxu.portableconfig.ContentFilter;
+import com.juvenxu.portableconfig.model.Remove;
 import com.juvenxu.portableconfig.model.Replace;
 import com.ximpleware.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.component.annotations.Component;
 
 import java.io.IOException;
@@ -16,7 +18,7 @@ import java.util.List;
  */
 @Component(role = ContentFilter.class, hint = "xml")
 public class XmlContentFilter implements ContentFilter {
-
+    private Logger logger = Logger.getLogger(XmlContentFilter.class);
     @Override
     public boolean accept(String contentType) {
         return (".xml").equals(contentType);
@@ -37,9 +39,16 @@ public class XmlContentFilter implements ContentFilter {
             for (Replace replace : replaces) {
                 autoPilot.selectXPath(replace.getXpath());
                 int i;
+                logger.info("计算: " + replace.getXpath());
                 while ((i = autoPilot.evalXPath()) != -1) {
+                    logger.info("计算的xpath index: " + i);
                     if (toReplaceAttribute(replace)) {
-                        xmlModifier.updateToken(i + 1, replace.getValue());
+                        if (replace instanceof Remove) {
+                            logger.info("删除: " + replace.getXpath());
+                            xmlModifier.removeAttribute(i);
+                        }else {
+                            xmlModifier.updateToken(i + 1, replace.getValue());
+                        }
                     } else {
                         int textIndex = vtdNav.getText();
                         xmlModifier.updateToken(textIndex, replace.getValue());

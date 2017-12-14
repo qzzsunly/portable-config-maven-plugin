@@ -2,6 +2,7 @@ package com.juvenxu.portableconfig;
 
 import com.juvenxu.portableconfig.model.ConfigFile;
 import com.juvenxu.portableconfig.model.PortableConfig;
+import com.juvenxu.portableconfig.model.Remove;
 import com.juvenxu.portableconfig.model.Replace;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.StringUtils;
@@ -55,6 +56,18 @@ public class DefaultPortableConfigBuilder implements PortableConfigBuilder
           else if (replaceElement.getAttribute("xpath") != null)
           {
             configFile.addReplace(new Replace(null, replaceElement.getAttribute("xpath").getValue(), replaceElement.getText()));
+          }
+        }
+
+        for (Element replaceElement : configFileElement.getChildren("remove"))
+        {
+          if (replaceElement.getAttribute("key") != null)
+          {
+            configFile.addReplace(new Remove(replaceElement.getAttribute("key").getValue(), null));
+          }
+          else if (replaceElement.getAttribute("xpath") != null)
+          {
+            configFile.addReplace(new Remove(null, replaceElement.getAttribute("xpath").getValue()));
           }
         }
 
